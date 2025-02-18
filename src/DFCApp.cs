@@ -11,10 +11,18 @@ public class DFCApp
 
     public DFCApp(Options options)
     {
-        _files.Add(options.File);
+        _files = new List<String>();
+
+        if (options.Directory != null)
+        {
+            foreach (FileInfo info in options.Directory?.EnumerateFiles())
+            {
+                _files.Add(info.FullName);
+            }
+        }
     }
 
-    public void LoadDocument()
+    public void LoadDocuments()
     {
         new Docx2PdfConvertor(_files.First()).Convert();
         // Load documents
