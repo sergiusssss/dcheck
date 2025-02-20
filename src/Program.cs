@@ -12,7 +12,11 @@ class Program
     }
     static void RunOptions(Options opts)
     {
-        //handle options
+        DFCApp app = new DFCApp(opts);
+        
+        app.LoadDocument();
+
+        Report report = app.CheckDocuments();
     }
     static void HandleParseError(IEnumerable<Error> errs)
     {
