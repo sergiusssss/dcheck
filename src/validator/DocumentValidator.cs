@@ -6,8 +6,16 @@ public class DocumentValidator
 {
     public Report Validate(Document document)
     {
-        // Collect first page elements and check title page
+        Report report = new Report();
         
-        return null;
+        
+        
+        foreach (var element in document.Elements)
+        {
+            DocumentElementValidator validator = new DocumentElementValidator();
+            element.Validate(validator);
+        }
+        
+        return report;
     }
 }

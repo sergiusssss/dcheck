@@ -1,4 +1,8 @@
+using DFC.document;
+using DFC.parser;
 using DFC.utils;
+using DFC.validator;
+using Microsoft.Extensions.Logging;
 
 namespace DFC;
 
@@ -7,30 +11,75 @@ using DocumentFormat.OpenXml.Wordprocessing;
 
 public class DFCApp
 {
-    private List<String> _files = new List<String>();
+    private Options _options;
+    private List<FileInfo> _files;
+    
+    private DFC.document.Document _document;
 
     public DFCApp(Options options)
     {
-        _files = new List<String>();
-
-        if (options.Directory != null)
-        {
-            foreach (FileInfo info in options.Directory?.EnumerateFiles())
-            {
-                _files.Add(info.FullName);
-            }
-        }
+        _options = options;
     }
 
-    public void LoadDocuments()
+    public bool LoadDocuments()
     {
-        new Docx2PdfConvertor(_files.First()).Convert();
-        // Load documents
-        // Convert to PDF
+        Logger.Instance.LogInformation($"Loading documents...");
+        
+        _files = new List<FileInfo>();
+
+        if (_options.Directory != null)
+        {
+            foreach (FileInfo info in _options.Directory!.EnumerateFiles()!)
+            {
+                Logger.Instance.LogInformation($"Loading file {info.FullName}");
+                _files.Add(info);
+            }
+        }
+        else if (_options.File != null)
+        {
+            Logger.Instance.LogInformation($"Loading file {_options.File.FullName}");
+            _files.Add(_options.File);
+        }
+        else
+        {
+            Logger.Instance.LogError("No valid files provided.");
+            return false;
+        }
+
+        Logger.Instance.LogInformation($"Documents loaded.");
+        return true;
+    }
+
+    public bool ParseDocuments()
+    {
+        Logger.Instance.LogInformation($"Parsing documents...");
+
+        var parser = new DocumentElementsParser();
+        
+        LinkedList<DocumentElement> elements = new LinkedList<DocumentElement>();
+        
+        foreach (FileInfo info in _files)
+        {
+            foreach (DocumentElement newElement in parser.Parse(info))
+            {
+                elements.AddLast(newElement);
+            }
+        }
+
+        _document = new DFC.document.Document(elements);
+        
+        Logger.Instance.LogInformation($"Documents parsed.");
+        return true;
     }
 
     public Report CheckDocuments()
     {
-        return null;
+        Logger.Instance.LogInformation($"Validating documents...");
+        
+        var report = new DocumentValidator().Validate(_document);
+        
+        Logger.Instance.LogInformation($"Documents validated.");
+
+        return report;
     }
 }
