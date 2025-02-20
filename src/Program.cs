@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using DocumentFormat.OpenXml.Spreadsheet;
+using Microsoft.Extensions.Logging;
 
 namespace DFC;
 
@@ -14,17 +15,26 @@ class Program
     
     static void Main(string[] args)
     {
+        Logger.Initialize();
+        
         CommandLine.Parser.Default.ParseArguments<Options>(args)
             .WithParsed(RunOptions)
             .WithNotParsed(HandleParseError);
+        
+        if(appInstance == null) return;
+        
+        Logger.Instance.LogInformation("Starting DFC");
 
-        OpenXmlMiscNode node = null;
+        if (appInstance.LoadDocuments() && appInstance.ParseDocuments())
+        {
+            Report report = appInstance.CheckDocuments();
+        }
     }
     static void RunOptions(Options opts)
     {
-        Console.WriteLine("Selected directory: " + (null == opts.Directory ? "<not set>" : opts.Directory));
-        Console.WriteLine("Selected file : " + (null == opts.File ? "<not set>" : opts.File));
-        Console.WriteLine("Is verbose output : " + opts.Verbose);
+        Logger.Instance.LogInformation("Selected directory: {}", (null == opts.Directory ? "<not set>" : opts.Directory));
+        Logger.Instance.LogInformation("Selected file : {}", (null == opts.File ? "<not set>" : opts.File));
+        Logger.Instance.LogInformation("Is verbose output : {}", opts.Verbose);
 
         appInstance = new DFCApp(opts);
     }
@@ -37,10 +47,10 @@ class Program
             return;
         }
         
-        Console.WriteLine("Invalid options provided:");
+        Logger.Instance.LogError("Invalid options provided:");
         foreach (var error in errs)
         {
-            Console.WriteLine(error.ToString());     
+            Logger.Instance.LogError("\t" + error.ToString());     
         }
     }
 }

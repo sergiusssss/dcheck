@@ -11,6 +11,8 @@
       <PackageReference Include="CommandLineParser" Version="2.9.1" />
       <PackageReference Include="DocumentFormat.OpenXml" Version="3.2.0" />
       <PackageReference Include="Microsoft.Office.Interop.Word" Version="15.0.4797.1004" />
+      <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.2" />
+      <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.2" />
     </ItemGroup>
 
     <ItemGroup>
