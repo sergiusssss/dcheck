@@ -14,7 +14,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="formatting\" />
+      <Folder Include="src\formatting\" />
     </ItemGroup>
 
 </Project>
